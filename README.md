@@ -12,6 +12,14 @@ To run as a command-line tool, you'd need to install the required python modules
 and then can run the tool using either environment variables or by passing the
 required parameters as run-time parameters.
 
+### Requirements:
+
+* AWS Accound id, Access id, and Secret Key
+* AWS Region to import the data into
+* Tenable.io API Keys for an Admin-level user (required for exports)
+* A host to run the integration on.  As this integration is cloud-to-cloud, the only stipulation is that it must be able to reach out to both cloud platforms.
+
+
 ### Building for Docker
 
 ```shell
