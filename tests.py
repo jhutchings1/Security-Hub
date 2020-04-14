@@ -129,7 +129,7 @@ def vulnerability():
                 'https://security-tracker.debian.org/tracker/source-package/gcc-4.9',
                 'https://packages.debian.org/source/jessie/gcc-4.9',
                 'https://www.debian.org/security/2018/dsa-4117'
-            ],    
+            ],
             'solution': ' '.join([
                 'Upgrade the gcc-4.9 packages.\n\n',
                 'For the oldstable distribution (jessie), this problem ',
@@ -201,6 +201,7 @@ def test_transform_finding(sechub, asset, vulnerability):
     assert f['UpdatedAt']
     assert f['Severity']['Product'] == 7
     assert f['Severity']['Normalized'] == 70
+    assert f['Severity']['Label'] == 'HIGH'
     assert f['Title'] == 'Debian DSA-4117-1 : gcc-4.9 - security update'
     assert isinstance(f['Description'], str)
     assert f['Resources'][0]['Type'] == 'AwsEc2Instance'

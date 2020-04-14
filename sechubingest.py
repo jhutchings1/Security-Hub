@@ -24,9 +24,9 @@ SOFTWARE.
 '''
 from tenable.io import TenableIO
 from tenable.errors import TenableException
-import boto3, arrow, logging, os
+import boto3, arrow, logging, os, json
 
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 
 
 def trunc(text, limit):
@@ -214,6 +214,7 @@ class SecurityHubIngester(object):
                                 sevmap[vuln.get('severity_default_id', 0)]),
                 'Normalized': int(vuln.get('plugin').get('cvss_base_score',
                                 sevmap[vuln.get('severity_default_id', 0)]) * 4),
+                'Label': vuln.get('severity').upper(),
             },
             'Title': trunc(vuln.get('plugin').get('name'), 256),
             'Description': trunc(vuln.get('plugin').get('description'), 1024),
@@ -236,7 +237,8 @@ class SecurityHubIngester(object):
             'RecordState': state[vuln['state']]
         }
 
-    def ingest(self, observed_since, batch_size=None, severities=None):
+    def ingest(self, observed_since, batch_size=None, severities=None,
+        dump_findings=False):
         '''
         Perform the ingestion
 
@@ -251,6 +253,10 @@ class SecurityHubIngester(object):
                 The criticalities that should be exported and ingested into AWS.
                 If nothing is specified, then the default is low, medium, high,
                 and critical.
+            dump_findings (bool, optional):
+                Should findings be dumped to disk along with being transmitted
+                to the AWS SecurityHub API?  If left unspecified, the default
+                value is False.
         '''
         if not batch_size:
             batch_size = 100
@@ -295,7 +301,13 @@ class SecurityHubIngester(object):
         for export in [openvulns, fixedvulns]:
             for vuln in export:
                 if vuln.get('asset').get('uuid') in self._assets.keys():
-                    transforms.append(self._transform_finding(vuln))
+                    finding = self._transform_finding(vuln)
+                    if dump_findings:
+                        with open('{}-{}.json'.format(
+                            vuln.get('asset').get('uuid'),
+                            vuln.get('plugin').get('id')), 'w') as jfile:
+                            json.dump(finding, jfile)
+                    transforms.append(finding)
                 if len(transforms) >= batch_size:
                     self._sechub.batch_import_findings(Findings=transforms)
                     transforms = list()
