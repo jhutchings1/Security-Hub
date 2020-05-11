@@ -14,6 +14,7 @@ required parameters as run-time parameters.
 
 ### Requirements:
 
+* Tenable.io's AWS Connector must be configured to pull the relavent metadata into Tenable.io.
 * AWS Accound id, Access id, and Secret Key
 * AWS Region to import the data into
 * Tenable.io API Keys for an Admin-level user (required for exports)
